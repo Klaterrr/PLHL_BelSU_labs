@@ -82,16 +82,14 @@ int main() {
     resultText.setFillColor(sf::Color::Black);
 
     while (window.isOpen()) {
-        while (auto event_opt = window.pollEvent()) {
-            const auto& event = *event_opt;
-            if (event.type == sf::Event::Closed) {
+        while (const std::optional event = window.pollEvent()) {
+            if (event->is<sf::Event::Closed>()) {
                 window.close();
             }
 
-            if (event.type == sf::Event::MouseButtonPressed) {
-                const auto& mouseEvent = event.mouseButton;
-                int x = mouseEvent.x;
-                int y = mouseEvent.y;
+            if (const auto* mouseEvent = event->getIf<sf::Event::MouseButtonPressed>()) {
+                int x = mouseEvent->position.x;
+                int y = mouseEvent->position.y;
 
                 if (x < gridSize * cellSize && y < gridSize * cellSize) {
                     int col = x / cellSize;
