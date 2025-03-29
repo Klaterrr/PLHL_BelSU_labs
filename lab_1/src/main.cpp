@@ -2,6 +2,7 @@
 #include <vector>
 #include <cmath>
 #include <iostream>
+#include <optional>
 
 class HebbNeuron {
 private:
@@ -63,7 +64,7 @@ public:
 };
 
 int main() {
-    sf::RenderWindow window(sf::VideoMode(600, 600), "Neuron Training");
+    sf::RenderWindow window(sf::VideoMode(sf::Vector2u(600, 600)), "Neuron Training");
     HebbNeuron neuron("bipolar", 0.1, true);
 
     const int gridSize = 5;
@@ -71,24 +72,26 @@ int main() {
     std::vector<std::vector<bool>> grid(gridSize, std::vector<bool>(gridSize, false));
 
     sf::Font font;
-    if (!font.loadFromFile("../fonts/arial.ttf")) {
+    if (!font.openFromFile("../fonts/arial.ttf")) {
         std::cerr << "Error loading font" << std::endl;
         return -1;
     }
 
-    sf::Text resultText("", font, 24);
-    resultText.setPosition(50, 500);
+    sf::Text resultText(font, "", 24);
+    resultText.setPosition(sf::Vector2f(50.f, 500.f));
+    resultText.setFillColor(sf::Color::Black);
 
     while (window.isOpen()) {
-        sf::Event event;
-        while (window.pollEvent(event)) {
+        while (auto event_opt = window.pollEvent()) {
+            const auto& event = *event_opt;
             if (event.type == sf::Event::Closed) {
                 window.close();
             }
 
             if (event.type == sf::Event::MouseButtonPressed) {
-                int x = event.mouseButton.x;
-                int y = event.mouseButton.y;
+                const auto& mouseEvent = event.mouseButton;
+                int x = mouseEvent.x;
+                int y = mouseEvent.y;
 
                 if (x < gridSize * cellSize && y < gridSize * cellSize) {
                     int col = x / cellSize;
@@ -130,7 +133,7 @@ int main() {
         for (int i = 0; i < gridSize; ++i) {
             for (int j = 0; j < gridSize; ++j) {
                 sf::RectangleShape cell(sf::Vector2f(cellSize, cellSize));
-                cell.setPosition(j * cellSize, i * cellSize);
+                cell.setPosition(sf::Vector2f(j * cellSize, i * cellSize));
                 cell.setOutlineThickness(2);
                 cell.setOutlineColor(sf::Color::Black);
                 cell.setFillColor(grid[i][j] ? sf::Color::Black : sf::Color::White);
@@ -139,24 +142,27 @@ int main() {
         }
 
         sf::RectangleShape trainButton(sf::Vector2f(150, 50));
-        trainButton.setPosition(400, 50);
+        trainButton.setPosition(sf::Vector2f(400, 50));
         trainButton.setFillColor(sf::Color::Green);
-        sf::Text trainText("Train", font, 24);
-        trainText.setPosition(440, 55);
+        
+        sf::Text trainText(font, "Train", 24);
+        trainText.setPosition(sf::Vector2f(440, 55));
         trainText.setFillColor(sf::Color::Black);
 
         sf::RectangleShape predictButton(sf::Vector2f(150, 50));
-        predictButton.setPosition(400, 150);
+        predictButton.setPosition(sf::Vector2f(400, 150));
         predictButton.setFillColor(sf::Color::Blue);
-        sf::Text predictButtonText("Predict", font, 24);
-        predictButtonText.setPosition(430, 155);
+        
+        sf::Text predictButtonText(font, "Predict", 24);
+        predictButtonText.setPosition(sf::Vector2f(430, 155));
         predictButtonText.setFillColor(sf::Color::White);
 
         sf::RectangleShape clearButton(sf::Vector2f(150, 50));
-        clearButton.setPosition(400, 250);
+        clearButton.setPosition(sf::Vector2f(400, 250));
         clearButton.setFillColor(sf::Color::Red);
-        sf::Text clearButtonText("Clear", font, 24);
-        clearButtonText.setPosition(445, 255);
+        
+        sf::Text clearButtonText(font, "Clear", 24);
+        clearButtonText.setPosition(sf::Vector2f(445, 255));
         clearButtonText.setFillColor(sf::Color::White);
 
         window.draw(trainButton);
